@@ -48,13 +48,15 @@ module Associatable
 
       results = DBConnection.execute(<<-SQL, self.id)
         SELECT
-          o.*
+          other.*
         FROM
-          #{self.class.table_name} s
+          #{self.class.table_name} self
         JOIN
-          #{other_table_name} o ON o.#{primary_key} = s.#{foreign_key}
+          #{other_table_name} other
+        ON
+          other.#{primary_key} = self.#{foreign_key}
         WHERE
-          s.id = ?
+          self.id = ?
       SQL
 
       options.model_class.parse_all(results).first
@@ -62,7 +64,12 @@ module Associatable
   end
 
   def has_many(name, options_hash = {})
+    if options_hash.keys.include?(:through)
+      return has_many_through(name, options_hash)
+    end
+
     options = HasManyOptions.new(name, self.name, options_hash)
+    assoc_options[name] = options
 
     define_method(name) do
       foreign_key = options.foreign_key
@@ -71,13 +78,15 @@ module Associatable
 
       results = DBConnection.execute(<<-SQL, self.id)
         SELECT
-          o.*
+          other.*
         FROM
-          #{self.class.table_name} s
+          #{self.class.table_name} self
         JOIN
-          #{other_table_name} o ON s.#{primary_key} = o.#{foreign_key}
+          #{other_table_name} other
+        ON
+          self.#{primary_key} = other.#{foreign_key}
         WHERE
-          s.id = ?
+          self.id = ?
       SQL
 
       options.model_class.parse_all(results)

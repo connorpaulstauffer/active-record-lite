@@ -29,4 +29,27 @@ module Associatable
       source_options.model_class.parse_all(result).first
     end
   end
+
+  # def has_many_through(name, options_hash)
+  #   define_method(name) do
+  #     through_assoc = options_hash[:through]
+  #     through_options = self.class.assoc_options[through_assoc]
+  #
+  #
+  #     source_assoc = options_hash[:source]
+  #     source_options = through_options.model_class.assoc_options[source_assoc]
+  #
+  #     result = DBConnection.execute(<<-SQL, self.id)
+  #       SELECT
+  #         source.*
+  #       FROM
+  #         #{self.class.table_name} self
+  #       JOIN
+  #         #{through_options.table_name} through
+  #       ON
+  #
+  #
+  #     SQL
+  #   end
+  # end
 end
